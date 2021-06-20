@@ -15,21 +15,22 @@ class simple_motion:
 		self.sub = rospy.Subscriber("/darknet_ros/bounding_boxes", BoundingBoxes, self.search)
 		self.status_pub = rospy.Publisher('status', String, queue_size=1)
 		self.stop_sub = rospy.Subscriber('reset_yolo', Int32, self.set_stop)
+		self.bottle_pub = rospy.Publisher('bottle_visible', Bool, queue_size=1)
 		self.stop = 0
 		self.bottle_collected = 0
 		self.num_detected = 0
+		self.bottle_pub.publish(False)
 		
 
 	def set_stop(self, num):
-		self.stop = num
-		rospy.loginfo("0 stop recieved")
+		self.stop = num.data
+		rospy.loginfo(self.stop)
+		self.bottle_pub.publish(False)
 	
 	def search(self, data):
 		for box in data.bounding_boxes:
 			if (box.id == 39 or box.id == 12 or box.id == 0 or box.id == 75 or box.id == 10 or box.id == 61) and self.stop <= 2:
-				self.num_detected += 1
-				
-									
+				self.num_detected += 1					
 				img_mid = 640
 				dif = box.xmax - box.xmin
 				bottle_mid = box.xmin + (dif / 2)
@@ -38,6 +39,7 @@ class simple_motion:
 				vel = 0.15
 
 				rospy.loginfo(dif)
+				rospy.loginfo(box.Class)
 				#rospy.loginfo(rospy.get_time())
 
 				twist = Twist()
@@ -59,20 +61,22 @@ class simple_motion:
 					twist.angular.z = 0
 				
 				if dif < 100:
-					twist.linear.x = vel-0.05
+					twist.linear.x = vel
 
 				elif dif < 200:
 					twist.linear.x = vel - 0.05
-				elif dif < 260:
+				elif dif < 350:
 					twist.linear.x = vel-0.1
 
 				else:
 					twist.linear.x = 0
 					self.stop += 1		
 				
+				self.bottle_pub.publish(True)
 				#rospy.loginfo(box)
 				self.pub.publish(twist)
 				if self.stop==2:
+					self.stop += 1
 					twist.angular.x = 0
 					twist.angular.y = 0
 					twist.angular.z = 0
@@ -80,9 +84,10 @@ class simple_motion:
 					twist.linear.y = 0
 					twist.linear.z = 0
 					self.pub.publish(twist)
-					rospy.sleep(0.5)
+					rospy.sleep(2)
 					##Pick it up
 					self.status_pub.publish("A")
+			
 
 def main(args):
 	rospy.init_node('task3_yolo', anonymous=True)
