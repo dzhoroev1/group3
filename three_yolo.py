@@ -4,6 +4,7 @@ from std_msgs.msg import String
 from geometry_msgs.msg import Twist
 from darknet_ros_msgs.msg import BoundingBoxes
 from std_msgs.msg import Int32
+from std_msgs.msg import Bool
 import sys
 
 import actionlib
@@ -26,7 +27,6 @@ class simple_motion:
 		self.stop = num.data
 		rospy.loginfo(self.stop)
 		self.bottle_pub.publish(False)
-		self.num_detected = 0
 	
 	def search(self, data):
 		for box in data.bounding_boxes:
@@ -66,7 +66,7 @@ class simple_motion:
 
 				elif dif < 200:
 					twist.linear.x = vel - 0.05
-				elif dif < 350:
+				elif dif < 330:
 					twist.linear.x = vel-0.1
 
 				else:
