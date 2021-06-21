@@ -48,7 +48,6 @@ class simple_motion:
 				self.rotate(180)
 				#rospy.loginfo("publishing 0 back")
 				self.stop_pub.publish(0)
-				self.stop = 0
 				self.rotate(90)
 				if not self.bottle_visible and self.bottle_collected < 2:
 					##move to center					
