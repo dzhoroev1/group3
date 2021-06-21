@@ -4,6 +4,7 @@ from std_msgs.msg import String
 from geometry_msgs.msg import Twist
 from darknet_ros_msgs.msg import BoundingBoxes
 from std_msgs.msg import Int32
+from std_msgs.msg import Bool
 import sys
 
 import actionlib
@@ -50,6 +51,8 @@ class simple_motion:
 				self.stop_pub.publish(0)
 				self.rotate(90)
 				if not self.bottle_visible and self.bottle_collected < 2:
+					self.stop_pub.publish(3)
+					rospy.sleep(1)
 					##move to center					
 					goal = MoveBaseGoal()
 					goal.target_pose.header.frame_id = "map"
@@ -60,10 +63,10 @@ class simple_motion:
 					goal.target_pose.pose.orientation.x = 0
 					goal.target_pose.pose.orientation.y = 0
 					goal.target_pose.pose.orientation.z = 0
-					goal.target_pose.pose.orientation.w = 0
+					goal.target_pose.pose.orientation.w = 1
 					res = self.move_to_position(goal)
 					if res:
-						rotate(270)
+						self.rotate(270)
 
 
 	def move_to_position(self, goal):
