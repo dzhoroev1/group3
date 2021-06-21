@@ -26,6 +26,7 @@ class simple_motion:
 		self.stop = num.data
 		rospy.loginfo(self.stop)
 		self.bottle_pub.publish(False)
+		self.num_detected = 0
 	
 	def search(self, data):
 		for box in data.bounding_boxes:
